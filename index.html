@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ijtmai Qurbani Booking 2026</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        :root { --red: #b22222; --gold: #d4af37; }
+        body { background-color: #fffaf0; font-family: 'Arial', sans-serif; }
+        .header { background: var(--red); color: white; padding: 20px; border-bottom: 5px solid var(--gold); text-align: center; }
+        .price-box { border: 4px double var(--gold); background: white; border-radius: 50%; width: 180px; height: 180px; margin: 20px auto; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .price-box h2 { color: var(--red); font-weight: bold; margin: 0; }
+        .booking-card { background: white; border: 2px solid var(--red); border-radius: 15px; padding: 20px; margin-top: 20px; }
+        .cow-status { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 10px; }
+        .share-dot { display: inline-block; width: 25px; height: 25px; border-radius: 50%; background: #eee; margin: 3px; border: 1px solid #ccc; }
+        .share-dot.paid { background: #28a745; border-color: #1e7e34; }
+        .share-dot.pending { background: #ffc107; border-color: #d39e00; }
+        .list-group-item { text-align: right; border-right: 5px solid var(--red); }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>اجتماعی قربانی بکنگ جاری ہے</h1>
+    <p>جامع مسجد گلزارِ مدینہ - لاہور (0305-4706716)</p>
+</div>
+
+<div class="container mt-4 text-center">
+    <div class="price-box">
+        <span>گائے کا حصہ</span>
+        <h2>33,500</h2>
+        <small>روپے</small>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="booking-card">
+                <h4 class="text-danger">اپنی بکنگ درج کریں</h4>
+                <div class="mt-3 text-end">
+                    <input type="text" id="custName" class="form-control mb-2" placeholder="نام">
+                    <input type="text" id="custPhone" class="form-control mb-2" placeholder="فون نمبر">
+                    <button onclick="saveBooking()" class="btn btn-danger w-100">بکنگ کنفرم کریں</button>
+                </div>
+                <div class="mt-4 small text-muted">
+                    پیمنٹ کے بعد آپ کا حصہ گرین ہو جائے گا۔
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <h4 class="mt-3">موجودہ بکنگ کی تفصیل</h4>
+            <div id="bookingList" class="list-group mt-3">
+                </div>
+            
+            <div class="cow-status mt-4">
+                <h5>گائے نمبر 1 کی صورتحال</h5>
+                <div id="shareDots">
+                    </div>
+                <p id="cowMsg" class="mt-2 fw-bold"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Page load hotay hi purani bookings dikhao
+    window.onload = function() {
+        showBookings();
+    };
+
+    function saveBooking() {
+        let name = document.getElementById('custName').value;
+        let phone = document.getElementById('custPhone').value;
+
+        if(name == "" || phone == "") {
+            alert("Meharbani karke naam aur number likhein.");
+            return;
+        }
+
+        // Bookings ko array mein save karna
+        let bookings = JSON.parse(localStorage.getItem('qurbani_data')) || [];
+        bookings.push({ name: name, phone: phone, status: 'pending' });
+        localStorage.setItem('qurbani_data', JSON.stringify(bookings));
+
+        // Form clear karein
+        document.getElementById('custName').value = "";
+        document.getElementById('custPhone').value = "";
+
+        alert("Shukriya! Aap ki booking darj ho gayi hai.");
+        showBookings();
+    }
+
+    function showBookings() {
+        let bookings = JSON.parse(localStorage.getItem('qurbani_data')) || [];
+        let listHtml = "";
+        let dotsHtml = "";
+        let totalShares = bookings.length;
+
+        bookings.forEach((b, index) => {
+            listHtml += `<div class="list-group-item">
+                <strong>${b.name}</strong> - ${b.phone} 
+                <span class="badge bg-warning text-dark float-start">Pending</span>
+            </div>`;
+        });
+
+        // 7 shares ka hisab
+        for(let i=1; i<=7; i++) {
+            let activeClass = (i <= totalShares) ? 'pending' : '';
+            dotsHtml += `<span class="share-dot ${activeClass}"></span>`;
+        }
+
+        document.getElementById('bookingList').innerHTML = listHtml;
+        document.getElementById('shareDots').innerHTML = dotsHtml;
+
+        if(totalShares >= 7) {
+            document.getElementById('cowMsg').innerHTML = "گائے نمبر 1 مکمل ہو گئی ہے! 🎉";
+            document.getElementById('cowMsg').className = "text-success mt-2 fw-bold";
+        } else {
+            document.getElementById('cowMsg').innerHTML = (7 - totalShares) + " حصے باقی ہیں۔";
+        }
+    }
+</script>
+
+</body>
+</html>
